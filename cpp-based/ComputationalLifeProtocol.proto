@@ -1,0 +1,89 @@
+syntax = "proto3";
+option java_package = "com.computational_life";
+option optimize_for = SPEED;
+
+enum ePropertyType
+{
+  Providing   = 0;/**<< @brief Provided by the message creator.  */
+  Requested   = 1;/**<< @brief Requested by the message creator. */
+}
+
+message LogData
+{
+  repeated string                        Info                    = 1;
+  repeated string                        Warning                 = 2;
+  repeated string                        Error                   = 3;
+  repeated string                        Fatal                   = 4;
+}
+
+message FlowConditionData
+{
+  ePropertyType                          Type                    = 1;
+  double                                 mL_per_s                = 2;
+}
+message PressureConditionData
+{
+  ePropertyType                          Type                    = 1;
+  double                                 mmHg                    = 2;
+}
+message ConcentrationConditionData
+{
+  ePropertyType                          Type                    = 1;
+  double                                 mg_per_mL               = 2;
+}
+
+message SubstanceData
+{
+  string                                 Name                   = 1;
+  ConcentrationConditionData             Concentration          = 2;
+}
+
+
+message BoundaryConditionData
+{
+  
+  int32                                  ID                     = 1;
+  string                                 Name                   = 2;
+  FlowConditionData                      Flow                   = 3;
+  PressureConditionData                  Pressure               = 4;
+  
+  repeated SubstanceData                 Substance              = 5;
+}
+
+message BoundaryConditionsData
+{
+  BoundaryConditionData                  Inlet                  = 1;
+  BoundaryConditionData                  Outlet                 = 2;
+}
+
+message BoundaryConditionsListData
+{
+  repeated BoundaryConditionsData        BoundaryConditions     = 1;
+}
+
+message MarchData
+{
+  double                                 Duration_s             = 1;
+}
+
+message StopData
+{
+
+}
+
+message IsReadyData
+{
+
+}
+
+message ModelInterchangeData
+{
+  oneof Command
+  {
+    BoundaryConditionsListData          BoundaryExchangeList    = 1;
+    MarchData                           March                   = 2;
+    StopData                            Stop                    = 3;
+    IsReadyData                         IsReady                 = 4;
+  }
+  LogData                               Log                     = 5;
+}

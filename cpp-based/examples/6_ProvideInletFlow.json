@@ -1,0 +1,1 @@
+{"BoundaryExchangeList":{"BoundaryConditions":[{"Inlet":{"ID":1,"Name":"Aorta","Flow":{"mL_per_s":5.34}}}]},"Log":{"Info":["Info 1","Info 2"],"Warning":["Warning 1","Warning 2"],"Error":["Error 1","Error 2"],"Fatal":["Fatal 1","Fatal 2"]}}
