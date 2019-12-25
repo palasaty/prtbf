@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../proto/ComputationalLifeProtocol.pb-c.h"
+#include <protobuf2json.h>
 
 /*void March()
 {
@@ -25,20 +26,17 @@
 void March_c()
 {
 	MarchData march = MARCH_DATA__INIT;
-	void *buf;
-	unsigned len;
 
-	double val = 0.25;
-	march.duration_s = val;
-	len = march_data__get_packed_size(&march);
-	printf("len: %d\n", len);
-	buf = malloc(len);
-	memset(buf, 0, len);
-	march_data__pack(&march, buf);
-	printf("march json: %s\n", buf);
-	fwrite(buf, len, 1, stdout); 
+	march.duration_s = 0.01;
+	char *json = NULL;
+	protobuf2json_string(
+		&march.base, 
+		(JSON_INDENT(2) | JSON_PRESERVE_ORDER), 
+		&json, NULL, 0
+	);
+	printf("march json: %s\n", json);
 
-	free(buf);
+	free(json);
 }
 
 int main()

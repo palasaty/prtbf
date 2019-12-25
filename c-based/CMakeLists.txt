@@ -4,9 +4,10 @@ set(CMAKE_BUILD_TYPE Debug)
 include(ExternalProject)
 add_executable(protobuf-c-demo src/main.c)
 
-set (PROTOBUF_C ${CMAKE_SOURCE_DIR}/protobuf-c)
-set (JANSON ${CMAKE_SOURCE_DIR}/janson)
-set (PROTO2JSON ${CMAKE_SOURCE_DIR}/proto2json)
+set (3RDPARTY ${CMAKE_SOURCE_DIR}/3rdparty)
+set (PROTOBUF_C ${3RDPARTY}/protobuf-c)
+set (JANSON ${3RDPARTY}/janson)
+set (PROTO2JSON ${3RDPARTY}/proto2json)
 
 function(generate_bindings)
 	set (PROTO_PATH "${CMAKE_SOURCE_DIR}/proto")
@@ -41,19 +42,30 @@ function (download_json_lib)
         ExternalProject_Add(janson
                 URL  https://github.com/akheron/jansson/archive/master.zip  
 		PREFIX ${JANSON}
+		CMAKE_ARGS -DJANSSON_BUILD_DOCS=OFF 
         )
         message ("Successfully downloaded")
 
 endfunction()
 
 function (download_convert_lib)
-       message ("Start download janson")
-       ExternalProject_Add(proto2json
+	message ("Start download janson")
+      	set (PROTO2JSON_SRC ${PROTO2JSON}/src/proto2json) 
+	ExternalProject_Add(proto2json
                 URL  https://github.com/Sannis/protobuf2json-c/archive/master.zip
 		PREFIX ${PROTO2JSON}
 		CONFIGURE_COMMAND ${PROTO2JSON}/src/proto2json/configure
 		BUILD_COMMAND make
+		INSTALL_COMMAND make install
+		BUILD_IN_SOURCE 1
         )
+	ExternalProject_Add_Step(proto2json
+        	autogen
+                COMMAND ./autogen.sh
+                DEPENDEES download
+                WORKING_DIRECTORY ${PROTO2JSON_SRC}
+	)
+
         message ("Successfully downloaded")
 
 endfunction()
@@ -64,18 +76,21 @@ function (link_with_gen_c)
 	target_sources(protobuf-c-demo PRIVATE ${PROTO_FILES})
 endfunction()
 
-function(link_with_protobuf_c)
-	find_library(PROTOBUF_LIB
-                 NAMES "libprotobuf-c.so"
+function(link_with_lib name)
+	unset (LIB_VAR CACHE)
+	message (${name})
+	find_library(LIB_VAR
+                 NAMES ${name}
                  PATHS "/usr/local"
                        "/usr"
-                 ENV PROTOBUF_ROOTDIR
+                 #ENV PROTOBUF_ROOTDIR
                  PATH_SUFFIXES "lib")
-	if(PROTOBUF_LIB)
-		target_link_libraries (protobuf-c-demo ${PROTOBUF_LIB})
-		message ("Successfully link with libprotobuf-c")
+	if(LIB_VAR)
+		message (${LIB_VAR})
+		target_link_libraries (protobuf-c-demo ${LIB_VAR})
+		message ("Successfully link with ${name}")
 	else()
-		message (FATAL_ERROR "Can't found libprotobuf-c")
+		message ("Can't found ${name}")
 	endif()
 
 endfunction()
@@ -90,16 +105,17 @@ endif()
 if (NOT EXISTS ${JANSON})
 	download_json_lib()
 else()
-	message ("Json lib already donloaded")
+	message ("Json lib already downloaded")
 endif()
 
 if (NOT EXISTS ${PROTO2JSON})
         download_convert_lib()
 else()
-	message ("Convert lib already donloaded")
+	message ("Convert lib already downloaded")
 endif()
 
 
 link_with_gen_c()
-link_with_protobuf_c()
+link_with_lib("libprotobuf-c.so")
+link_with_lib("libprotobuf2json-c.so")
 
