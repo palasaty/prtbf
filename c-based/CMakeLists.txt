@@ -28,8 +28,9 @@ function (download_lib)
 	set (PROTOBUF_SRC ${CMAKE_SOURCE_DIR/protobuf-c})
   	ExternalProject_Add(protubuf-c
     		URL    https://github.com/protobuf-c/protobuf-c/archive/master.zip
-    		PREFIX ""
-    		DOWNLOAD_DIR ${PROTOBUF_SRC}
+		PREFIX ${CMAKE_SOURCE_DIR}/protobuf-c 
+		SOURCE_SUBDIR build-cmake
+		#DOWNLOAD_DIR ${PROTOBUF_SRC}
   	)	
 	message ("Successfully downloaded")
 endfunction()
