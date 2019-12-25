@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "../proto/ComputationalLifeProtocol.pb-c.h"
 
 int main()
 {
