@@ -35,6 +35,28 @@ function (download_lib)
 	message ("Successfully downloaded")
 endfunction()
 
+function (link_with_gen_c)
+	set (PROTO_PATH "${CMAKE_SOURCE_DIR}/proto")
+	file(GLOB PROTO_FILES ${PROTO_PATH}/*.c)
+	target_sources(protobuf-c-demo PRIVATE ${PROTO_FILES})
+endfunction()
+
+function(link_with_protobuf_c)
+	find_library(PROTOBUF_LIB
+                 NAMES "libprotobuf-c.so"
+                 PATHS "/usr/local"
+                       "/usr"
+                 ENV PROTOBUF_ROOTDIR
+                 PATH_SUFFIXES "lib")
+	if(PROTOBUF_LIB)
+		target_link_libraries (protobuf-c-demo ${PROTOBUF_LIB})
+		message ("Successfully link with libprotobuf-c")
+	else()
+		message (FATAL_ERROR "Can't found libprotobuf-c")
+	endif()
+
+endfunction()
+
 if (NOT EXISTS ${PROTOBUF_C})
 	download_lib()
 	generate_bindings()
@@ -42,6 +64,6 @@ else()
 	message ("Protobuf-c already downloaded")
 endif()
 
-find_library(libprotobuf-c REQUIRED)
+link_with_gen_c()
+link_with_protobuf_c()
 
-target_link_libraries(protobuf-c-demo ${PROTOBUF_C_LIB})
