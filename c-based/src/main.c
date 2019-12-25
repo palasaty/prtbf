@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../proto/ComputationalLifeProtocol.pb-c.h"
 
 /*void March()
@@ -27,12 +28,15 @@ void March_c()
 	void *buf;
 	unsigned len;
 
-	march.duration_s = 0.001;
+	double val = 0.25;
+	march.duration_s = val;
 	len = march_data__get_packed_size(&march);
-
+	printf("len: %d\n", len);
 	buf = malloc(len);
+	memset(buf, 0, len);
 	march_data__pack(&march, buf);
-	printf("march json: %s", buf);
+	printf("march json: %s\n", buf);
+	fwrite(buf, len, 1, stdout); 
 
 	free(buf);
 }
