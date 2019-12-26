@@ -49,11 +49,12 @@ function (download_json_lib)
 endfunction()
 
 function (download_convert_lib)
-	message ("Start download janson")
+	message ("Start download convert lib")
       	set (PROTO2JSON_SRC ${PROTO2JSON}/src/proto2json) 
 	ExternalProject_Add(proto2json
                 URL  https://github.com/Sannis/protobuf2json-c/archive/master.zip
 		PREFIX ${PROTO2JSON}
+		#PATCH_COMMAND patch -p1 <${CMAKE_SOURCE_DIR}/proto2json.patch
 		CONFIGURE_COMMAND ${PROTO2JSON}/src/proto2json/configure
 		BUILD_COMMAND make
 		INSTALL_COMMAND make install
