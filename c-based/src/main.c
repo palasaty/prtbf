@@ -23,7 +23,7 @@
   myfile.close();
 }*/
 
-void March_c()
+void March()
 {
 	MarchData march = MARCH_DATA__INIT;
 
@@ -31,17 +31,33 @@ void March_c()
 	char *json = NULL;
 	protobuf2json_string(
 		&march.base, 
-		(JSON_INDENT(2) | JSON_PRESERVE_ORDER), 
+		JSON_COMPACT, 
 		&json, NULL, 0
 	);
-	printf("march json: %s\n", json);
+	printf("{\"March\": %s}\n", json);
 
 	free(json);
+}
+
+void Stop()
+{
+        StopData stop= STOP_DATA__INIT;
+
+        char *json = NULL;
+        protobuf2json_string(
+                &stop.base,
+                JSON_COMPACT,
+                &json, NULL, 0
+        );
+        printf("{\"Stop\":%s}\n", json);
+
+        free(json);
 }
 
 int main()
 {
 	printf("Start protobuf program\n");
-	March_c();
+	March();
+	Stop();
 	return 0;
 }
