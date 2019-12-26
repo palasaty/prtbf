@@ -1,0 +1,25 @@
+Project uses 3rd party libs
+- protobuf-c: for generating packed messages for current .proto file
+- protobuf2json-c: for generating json from packed message
+- janson: dependency for previous one
+
+They downloaded via cmake ExternalProject_Add
+URL - zip from github
+PREFIX - where to locate
+
+protobuf2json-c need to be patched
+see proto2json.patch file
+
+also protobuf2json-c uses autotools toolchain
+so, more verbose params for configure, make and install
+
+for good installing you should be root
+
+after protobuf-c is ready, cmake generate protobuf bindings for .proto file
+and linked with libprotobuf-c and libprotobuf2json
+
+in demo program:
+- Object init
+- Set fields
+- Convert to json using inner protobuf field
+- print to stdout
