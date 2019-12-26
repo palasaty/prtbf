@@ -66,7 +66,7 @@ function (download_convert_lib)
                 DEPENDEES download
                 WORKING_DIRECTORY ${PROTO2JSON_SRC}
 	)
-
+	add_dependencies(protobuf-c-demo proto2json)
         message ("Successfully downloaded")
 
 endfunction()
