@@ -55,13 +55,42 @@ void RequestOutletPressure()
 	outlet.id = 1;
 	outlet.name = "Aorta";
 	outlet.pressure = &pressure;
-	//outlet.flow = 0;
-	//outlet.n_substance = 0;
-	//outlet.substance = 0;
 	aorta.outlet = &outlet;
-	//aorta.inlet = 0;
 
 	char *json;
+        protobuf2json_string(
+                &condList.base,
+                JSON_COMPACT,
+                &json, NULL, 0
+        );
+        printf("{\"BoundaryExchangeList\":%s}\n", json);
+
+        free(json);
+
+}
+
+void ProvideOutletPressure()
+{
+       BoundaryConditionsListData condList = BOUNDARY_CONDITIONS_LIST_DATA__INIT;
+       BoundaryConditionsData  aorta = BOUNDARY_CONDITIONS_DATA__INIT;
+       BoundaryConditionData outlet = BOUNDARY_CONDITION_DATA__INIT;
+       PressureConditionData pressure = PRESSURE_CONDITION_DATA__INIT;
+
+       condList.n_boundaryconditions = 1;
+       condList.boundaryconditions = calloc(condList.n_boundaryconditions, sizeof(BoundaryConditionsData*));
+       if(condList.boundaryconditions == NULL){
+               printf("Can't allocate memory");
+               return;
+       }
+       condList.boundaryconditions[0] = (BoundaryConditionsData*)&aorta;
+
+       pressure.type = E_PROPERTY_TYPE__Requested;
+       outlet.id = 1;
+       outlet.name = "Aorta";
+       outlet.pressure = &pressure;
+       aorta.outlet = &outlet;
+
+        char *json;
         protobuf2json_string(
                 &condList.base,
                 JSON_COMPACT,
@@ -77,6 +106,7 @@ int main()
 {
 	printf("Start protobuf program\n");
 	RequestOutletPressure();
+	ProvideOutletPressure();
 	March();
 	Stop();
 	return 0;
