@@ -55,7 +55,11 @@ void RequestOutletPressure()
 	outlet.id = 1;
 	outlet.name = "Aorta";
 	outlet.pressure = &pressure;
+	//outlet.flow = 0;
+	//outlet.n_substance = 0;
+	//outlet.substance = 0;
 	aorta.outlet = &outlet;
+	//aorta.inlet = 0;
 
 	char *json;
         protobuf2json_string(
