@@ -84,7 +84,8 @@ void ProvideOutletPressure()
        }
        condList.boundaryconditions[0] = (BoundaryConditionsData*)&aorta;
 
-       pressure.type = E_PROPERTY_TYPE__Requested;
+       pressure.type = E_PROPERTY_TYPE__Providing;
+       pressure.mmhg = 98;
        outlet.id = 1;
        outlet.name = "Aorta";
        outlet.pressure = &pressure;
@@ -102,12 +103,132 @@ void ProvideOutletPressure()
 
 }
 
+void ProvideOutletFlowAndInletPressure()
+{
+       BoundaryConditionsListData condList = BOUNDARY_CONDITIONS_LIST_DATA__INIT;
+       BoundaryConditionsData  aorta = BOUNDARY_CONDITIONS_DATA__INIT;
+       BoundaryConditionData outlet = BOUNDARY_CONDITION_DATA__INIT;
+       BoundaryConditionData inlet = BOUNDARY_CONDITION_DATA__INIT;
+       PressureConditionData pressure = PRESSURE_CONDITION_DATA__INIT;
+       FlowConditionData flow = FLOW_CONDITION_DATA__INIT;
+
+       condList.n_boundaryconditions = 1;
+       condList.boundaryconditions = calloc(condList.n_boundaryconditions, sizeof(BoundaryConditionsData*));
+       if(condList.boundaryconditions == NULL){
+               printf("Can't allocate memory");
+               return;
+       }
+       condList.boundaryconditions[0] = (BoundaryConditionsData*)&aorta;
+
+       pressure.type = E_PROPERTY_TYPE__Providing;
+       pressure.mmhg = 98;
+
+       flow.type = E_PROPERTY_TYPE__Providing;
+       flow.ml_per_s = 4.76; 
+
+       outlet.id = 1;
+       outlet.name = "Aorta";
+       outlet.flow = &flow;
+       
+       inlet.id = 2;
+       inlet.name = "Aorta";
+       inlet.pressure = &pressure;
+       
+       aorta.outlet = &outlet;
+       aorta.inlet = &inlet;
+
+	char *json;
+        protobuf2json_string(
+                &condList.base,
+                JSON_COMPACT,
+                &json, NULL, 0
+        );
+        printf("{\"BoundaryExchangeList\":%s}\n", json);
+
+        free(json);
+
+}
+
+void RequestInletFlow()
+{
+       BoundaryConditionsListData condList = BOUNDARY_CONDITIONS_LIST_DATA__INIT;
+       BoundaryConditionsData  aorta = BOUNDARY_CONDITIONS_DATA__INIT;
+       BoundaryConditionData inlet = BOUNDARY_CONDITION_DATA__INIT;
+       FlowConditionData flow = FLOW_CONDITION_DATA__INIT;
+
+       condList.n_boundaryconditions = 1;
+       condList.boundaryconditions = calloc(condList.n_boundaryconditions, sizeof(BoundaryConditionsData*));
+       if(condList.boundaryconditions == NULL){
+               printf("Can't allocate memory");
+               return;
+       }
+       condList.boundaryconditions[0] = (BoundaryConditionsData*)&aorta;
+
+       flow.type = E_PROPERTY_TYPE__Requested;
+
+       inlet.id = 1;
+       inlet.name = "Aorta";
+       inlet.flow = &flow;
+
+       aorta.inlet = &inlet;
+     char *json;
+     protobuf2json_string(
+                &condList.base,
+                JSON_COMPACT,
+                &json, NULL, 0
+     );
+     printf("{\"BoundaryExchangeList\":%s}\n", json);
+
+     free(json);
+
+}
+
+void ProvideInletFlow()
+{
+       BoundaryConditionsListData condList = BOUNDARY_CONDITIONS_LIST_DATA__INIT;
+       BoundaryConditionsData  aorta = BOUNDARY_CONDITIONS_DATA__INIT;
+       BoundaryConditionData inlet = BOUNDARY_CONDITION_DATA__INIT;
+       FlowConditionData flow = FLOW_CONDITION_DATA__INIT;
+
+       condList.n_boundaryconditions = 1;
+       condList.boundaryconditions = calloc(condList.n_boundaryconditions, sizeof(BoundaryConditionsData*));
+       if(condList.boundaryconditions == NULL){
+               printf("Can't allocate memory");
+               return;
+       }
+       condList.boundaryconditions[0] = (BoundaryConditionsData*)&aorta;
+
+       flow.type = E_PROPERTY_TYPE__Providing;
+       flow.ml_per_s = 4.76;
+
+
+       inlet.id = 2;
+       inlet.name = "Aorta";
+       inlet.flow = &flow;
+
+       aorta.inlet = &inlet;
+
+     char *json;
+     protobuf2json_string(
+                &condList.base,
+                JSON_COMPACT,
+                &json, NULL, 0
+     );
+     printf("{\"BoundaryExchangeList\":%s}\n", json);
+
+     free(json);
+
+}
+
 int main()
 {
 	printf("Start protobuf program\n");
 	RequestOutletPressure();
 	ProvideOutletPressure();
+	ProvideOutletFlowAndInletPressure();
 	March();
+	RequestInletFlow();
+        ProvideInletFlow();
 	Stop();
 	return 0;
 }
