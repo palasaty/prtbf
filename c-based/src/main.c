@@ -198,26 +198,22 @@ void ProvideInletFlow()
        }
        condList.boundaryconditions[0] = (BoundaryConditionsData*)&aorta;
 
-       flow.type = E_PROPERTY_TYPE__Providing;
-       flow.ml_per_s = 4.76;
+      flow.type = E_PROPERTY_TYPE__Requested;
 
+      inlet.id = 1;
+      inlet.name = "Aorta";
+      inlet.flow = &flow;
+      aorta.inlet = &inlet;
 
-       inlet.id = 2;
-       inlet.name = "Aorta";
-       inlet.flow = &flow;
-
-       aorta.inlet = &inlet;
-
-     char *json;
-     protobuf2json_string(
+      char *json;
+      protobuf2json_string(
                 &condList.base,
                 JSON_COMPACT,
                 &json, NULL, 0
-     );
-     printf("{\"BoundaryExchangeList\":%s}\n", json);
+      );
+      printf("{\"BoundaryExchangeList\":%s}\n", json);
 
-     free(json);
-
+      free(json);
 }
 
 int main()
