@@ -157,10 +157,6 @@ static int protobuf2json_process_field(
     }
     case PROTOBUF_C_TYPE_MESSAGE: {
       const ProtobufCMessage **protobuf_message = (const ProtobufCMessage **)protobuf_value;
-	/*if(*protobuf_message == NULL){
-		json_value = NULL;
-		return 0;
-	}*/
       	int result = protobuf2json_process_message(*protobuf_message, json_value, error_string, error_size);
       	if (result) {	
         	return result;
@@ -179,6 +175,20 @@ static int protobuf2json_process_field(
   }
 
   return 0;
+}
+
+int check_empty(json_t **json)
+{
+	const char* key;
+	json_t *value;
+	json_object_foreach(*json, key, value) {
+		if((json_typeof(value) == 0) && (json_object_size(value) == 0)){
+			json_object_del(*json, key);
+		} else {
+		         check_empty(&value);
+		}
+	}
+
 }
 
 static int protobuf2json_process_message(
@@ -290,10 +300,11 @@ static int protobuf2json_process_message(
           int result = protobuf2json_process_field(field_descriptor, (const void *)protobuf_value_repeated, &json_value, error_string, error_size);
           if (result) {
             return result;
-          }
-	  //printf("%s\n", json_string_value(json_value));
-	  //if(!strcmp(json_string_value(json_value), "{}"))
-		  //continue;
+          
+	  }
+	  if(json_value !=NULL){
+		  check_empty(&json_value);
+	  }
 
           if (json_array_append_new(array, json_value)) {
             SET_ERROR_STRING_AND_RETURN(
