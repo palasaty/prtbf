@@ -19,4 +19,4 @@ make -C 3rdparty/proto2json/src/protobuf2json
 sudo make -C 3rdparty/proto2json/src/protobuf2json install
 ##
 #run
-/tmp/build/protobuf-demo
+/tmp/build/protobuf-c-demo
