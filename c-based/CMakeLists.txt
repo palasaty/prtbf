@@ -1,8 +1,21 @@
 cmake_minimum_required(VERSION 3.14)
-project(protobuf-c-demo)
+project(protobuf-c-demo )
 set(CMAKE_BUILD_TYPE Debug)
 include(ExternalProject)
-add_executable(protobuf-c-demo src/main.c)
+
+set(GLOBAL_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR}/install)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${GLOBAL_OUTPUT_PATH})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${GLOBAL_OUTPUT_PATH})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${GLOBAL_OUTPUT_PATH})
+
+foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${GLOBAL_OUTPUT_PATH})
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${GLOBAL_OUTPUT_PATH})
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${GLOBAL_OUTPUT_PATH})
+endforeach(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
 
 set (3RDPARTY ${CMAKE_SOURCE_DIR}/3rdparty)
 set (PROTOBUF_C ${3RDPARTY}/protobuf-c)
@@ -29,20 +42,29 @@ endfunction()
 
 function (download_protobuf_lib)
 	message ("Start download protobuf-c")
-  	ExternalProject_Add(protubuf-c
+	set_property(DIRECTORY PROPERTY EP_STEP_TARGETS download build)
+  	ExternalProject_Add(protobuf-c
     		URL    https://github.com/protobuf-c/protobuf-c/archive/master.zip
-		PREFIX ${PROTOBUF_C} 
+		##PREFIX ${PROTOBUF_C} 
+		SOURCE_DIR ${PROTOBUF_C}
+		INSTALL_DIR ${GLOBAL_OUTPUT_PATH}
+		BINARY_DIR ${GLOBAL_OUTPUT_PATH}
 		SOURCE_SUBDIR build-cmake
+		CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
   	)	
 	message ("Successfully downloaded")
 endfunction()
 
 function (download_json_lib)
         message ("Start download janson")
+	set_property(DIRECTORY PROPERTY EP_STEP_TARGETS download build)
         ExternalProject_Add(janson
                 URL  https://github.com/akheron/jansson/archive/master.zip  
-		PREFIX ${JANSON}
-		CMAKE_ARGS -DJANSSON_BUILD_DOCS=OFF 
+		##PREFIX ${JANSON}
+		CMAKE_ARGS -DJANSSON_BUILD_DOCS=OFF -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+		SOURCE_DIR ${JANSON}
+		INSTALL_DIR ${GLOBAL_OUTPUT_PATH}
+		BINARY_DIR ${GLOBAL_OUTPUT_PATH}
         )
         message ("Successfully downloaded")
 
@@ -50,12 +72,21 @@ endfunction()
 
 function (download_convert_lib)
 	message ("Start download convert lib")
-      	set (PROTO2JSON_SRC ${PROTO2JSON}/src/proto2json) 
+	##set (PROTO2JSON_SRC ${PROTO2JSON}/src/) 
+	set_property(DIRECTORY PROPERTY EP_STEP_TARGETS download configure build)
+	ExternalProject_Get_Property(protobuf-c install_dir)
+	include_directories(${install_dir}/include)
+
 	ExternalProject_Add(proto2json
+		DEPENDS protobuf-c
                 URL  https://github.com/Sannis/protobuf2json-c/archive/master.zip
-		PREFIX ${PROTO2JSON}
+		##PREFIX ${PROTO2JSON}
+		SOURCE_DIR ${PROTO2JSON}
+		INSTALL_DIR ${GLOBAL_OUTPUT_PATH}
+		##BINARY_DIR ${GLOBAL_OUTPUT_PATH}
 		#PATCH_COMMAND patch -p1 <${CMAKE_SOURCE_DIR}/proto2json.patch
-		CONFIGURE_COMMAND ${PROTO2JSON}/src/proto2json/configure
+		UPDATE_COMMAND cp ${CMAKE_SOURCE_DIR}/src/protobuf2json.c ${PROTO2JSON}/src
+		CONFIGURE_COMMAND ${PROTO2JSON}/configure --with-protobuf-c=${PROJECT_BINARY_DIR}/install/include/protobuf-c
 		BUILD_COMMAND make
 		INSTALL_COMMAND make install
 		BUILD_IN_SOURCE 1
@@ -64,9 +95,8 @@ function (download_convert_lib)
         	autogen
                 COMMAND ./autogen.sh
                 DEPENDEES download
-                WORKING_DIRECTORY ${PROTO2JSON_SRC}
+                WORKING_DIRECTORY ${PROTO2JSON}
 	)
-	add_dependencies(protobuf-c-demo proto2json)
         message ("Successfully downloaded")
 
 endfunction()
@@ -82,7 +112,8 @@ function(link_with_lib name)
 	message (${name})
 	find_library(LIB_VAR
                  NAMES ${name}
-                 PATHS "/usr/local"
+		 PATHS "${PROJECT_BINARY_DIR/install}"
+		 	"/usr/local"
                        "/usr"
                  #ENV PROTOBUF_ROOTDIR
                  PATH_SUFFIXES "lib")
@@ -95,6 +126,9 @@ function(link_with_lib name)
 	endif()
 
 endfunction()
+
+add_executable(protobuf-c-demo src/main.c)
+link_directories(${GLOBAL_OUTPUT_PATH})
 
 if (NOT EXISTS ${PROTOBUF_C})
 	download_protobuf_lib()
@@ -110,6 +144,7 @@ else()
 endif()
 
 if (NOT EXISTS ${PROTO2JSON})
+	add_dependencies(protobuf-c-demo proto2json)
         download_convert_lib()
 else()
 	message ("Convert lib already downloaded")
