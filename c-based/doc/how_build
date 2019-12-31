@@ -5,18 +5,7 @@ cmake -S . -B /tmp/build
 # it will create ./3rdparty dir
 # with dir for each lib
 # protobuf-c, jansson, proto2json
-sudo make -C /tmp/build
-###
-# if link error invoke previous comnand once again
-# check that all libs ok
-/usr/local/lib | grep protobuf-c
-/usr/local/lib | grep jansson
-/usr/local/lib | grep proto2json
-###
-# manualy patch proto2json
-copy src/protobuf2json.c 3rdparty/proto2json/src/protobuf2json/src
-make -C 3rdparty/proto2json/src/protobuf2json
-sudo make -C 3rdparty/proto2json/src/protobuf2json install
+make -C /tmp/build
 ##
 #run
 /tmp/build/protobuf-c-demo
