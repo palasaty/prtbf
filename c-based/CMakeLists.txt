@@ -6,16 +6,16 @@ include(ExternalProject)
 set(GLOBAL_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR}/install)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${GLOBAL_OUTPUT_PATH})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${GLOBAL_OUTPUT_PATH})
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${GLOBAL_OUTPUT_PATH})
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${GLOBAL_OUTPUT_PATH})
+#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${GLOBAL_OUTPUT_PATH})
+#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${GLOBAL_OUTPUT_PATH})
 
-foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
-    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${GLOBAL_OUTPUT_PATH})
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${GLOBAL_OUTPUT_PATH})
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${GLOBAL_OUTPUT_PATH})
-endforeach(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
+#foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+#    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
+#    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${GLOBAL_OUTPUT_PATH})
+#    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${GLOBAL_OUTPUT_PATH})
+#    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${GLOBAL_OUTPUT_PATH})
+#endforeach(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
 
 set (3RDPARTY ${CMAKE_SOURCE_DIR}/3rdparty)
 set (PROTOBUF_C ${3RDPARTY}/protobuf-c)
@@ -46,11 +46,18 @@ function (download_protobuf_lib)
     		URL    https://github.com/protobuf-c/protobuf-c/archive/master.zip
 		UPDATE_COMMAND cp ${CMAKE_SOURCE_DIR}/patch/protobuf-build ${PROTOBUF_C}/build-cmake/CMakeLists.txt
 		SOURCE_DIR ${PROTOBUF_C}
-		INSTALL_DIR ${GLOBAL_OUTPUT_PATH}
-		BINARY_DIR ${GLOBAL_OUTPUT_PATH}
+		INSTALL_DIR ${PROJECT_BINARY_DIR}/install
+		#BINARY_DIR ${GLOBAL_OUTPUT_PATH}
 		SOURCE_SUBDIR build-cmake
+		CONFIGURE_COMMAND  ${PROTOBUF_C}/configure -C --prefix=${CMAKE_INSTALL_PREFIX}  "CFLAGS=-g -O2 -fPIC" 
 		CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
   	)	
+        ExternalProject_Add_Step(protobuf-c
+                autogen
+                COMMAND ./autogen.sh
+                DEPENDEES download
+		WORKING_DIRECTORY ${PROTOBUF_C}
+        )
 
 	message ("Successfully downloaded")
 endfunction()
@@ -61,8 +68,8 @@ function (download_json_lib)
                 URL  https://github.com/akheron/jansson/archive/master.zip  
 		CMAKE_ARGS -DJANSSON_BUILD_DOCS=OFF -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} 
 		SOURCE_DIR ${JANSON}
-		INSTALL_DIR ${GLOBAL_OUTPUT_PATH}
-		BINARY_DIR ${GLOBAL_OUTPUT_PATH}
+		#INSTALL_DIR ${GLOBAL_OUTPUT_PATH}
+		#BINARY_DIR ${GLOBAL_OUTPUT_PATH}
         )
 
         message ("Successfully downloaded")
@@ -71,17 +78,14 @@ endfunction()
 
 function (download_convert_lib)
 	message ("Start download convert lib")
-	set_property(DIRECTORY PROPERTY EP_STEP_TARGETS download configure build)
-	ExternalProject_Get_Property(protobuf-c install_dir)
-	include_directories(${install_dir}/include)
 
 	ExternalProject_Add(proto2json
 		DEPENDS protobuf-c janson
                 URL  https://github.com/Sannis/protobuf2json-c/archive/master.zip
 		SOURCE_DIR ${PROTO2JSON}
-		INSTALL_DIR ${GLOBAL_OUTPUT_PATH}
+		INSTALL_DIR ${PROJECT_BINARY_DIR}/install
 		UPDATE_COMMAND cp ${CMAKE_SOURCE_DIR}/patch/protobuf2json.c ${PROTO2JSON}/src 
-		CONFIGURE_COMMAND ${PROTO2JSON}/configure --with-protobuf-c=${PROJECT_BINARY_DIR}/install/
+		CONFIGURE_COMMAND ${PROTO2JSON}/configure -C --prefix=${CMAKE_INSTALL_PREFIX}  --with-protobuf-c=${PROJECT_BINARY_DIR}/install/
 		BUILD_COMMAND make
 		INSTALL_COMMAND make install
 		BUILD_IN_SOURCE 1
@@ -105,6 +109,7 @@ endfunction()
 function(link_with_lib name libname)
 	message(${name} " " ${libname})
 	ExternalProject_Get_Property(${name} install_dir)
+	message(${install_dir})
 
 	if(install_dir)
 		target_link_libraries (protobuf-c-demo ${install_dir}/lib/${libname})
@@ -115,8 +120,9 @@ function(link_with_lib name libname)
 
 endfunction()
 
+include_directories(${CMAKE_INSTALL_PREFIX}/include)
 add_executable(protobuf-c-demo src/main.c)
-link_directories(${GLOBAL_OUTPUT_PATH})
+#link_directories(${GLOBAL_OUTPUT_PATH})
 
 add_dependencies(protobuf-c-demo proto2json)
 download_protobuf_lib()
