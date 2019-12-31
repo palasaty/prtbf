@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 2.8)
 project(protobuf-c-demo )
 set(CMAKE_BUILD_TYPE Debug)
 include(ExternalProject)
@@ -46,6 +46,7 @@ function (download_protobuf_lib)
   	ExternalProject_Add(protobuf-c
     		URL    https://github.com/protobuf-c/protobuf-c/archive/master.zip
 		##PREFIX ${PROTOBUF_C} 
+		#UPDATE_COMMAND cp ${CMAKE_SOURCE_DIR}/patch/protobuf-build ${PROTOBUF_C}/build-cmake/CMakeLists.txt
 		SOURCE_DIR ${PROTOBUF_C}
 		INSTALL_DIR ${GLOBAL_OUTPUT_PATH}
 		BINARY_DIR ${GLOBAL_OUTPUT_PATH}
@@ -78,15 +79,15 @@ function (download_convert_lib)
 	include_directories(${install_dir}/include)
 
 	ExternalProject_Add(proto2json
-		DEPENDS protobuf-c
+		DEPENDS janson protobuf-c
                 URL  https://github.com/Sannis/protobuf2json-c/archive/master.zip
 		##PREFIX ${PROTO2JSON}
 		SOURCE_DIR ${PROTO2JSON}
 		INSTALL_DIR ${GLOBAL_OUTPUT_PATH}
 		##BINARY_DIR ${GLOBAL_OUTPUT_PATH}
 		#PATCH_COMMAND patch -p1 <${CMAKE_SOURCE_DIR}/proto2json.patch
-		UPDATE_COMMAND cp ${CMAKE_SOURCE_DIR}/src/protobuf2json.c ${PROTO2JSON}/src
-		CONFIGURE_COMMAND ${PROTO2JSON}/configure --with-protobuf-c=${PROJECT_BINARY_DIR}/install/include/protobuf-c
+		UPDATE_COMMAND cp ${CMAKE_SOURCE_DIR}/patch/protobuf2json.c ${PROTO2JSON}/src 
+		CONFIGURE_COMMAND ${PROTO2JSON}/configure --with-protobuf-c=${PROJECT_BINARY_DIR}/install/
 		BUILD_COMMAND make
 		INSTALL_COMMAND make install
 		BUILD_IN_SOURCE 1
@@ -130,25 +131,14 @@ endfunction()
 add_executable(protobuf-c-demo src/main.c)
 link_directories(${GLOBAL_OUTPUT_PATH})
 
-if (NOT EXISTS ${PROTOBUF_C})
-	download_protobuf_lib()
-	generate_bindings()
-else()
-	message ("Protobuf-c already downloaded")
-endif()
 
-if (NOT EXISTS ${JANSON})
-	download_json_lib()
-else()
-	message ("Json lib already downloaded")
-endif()
+download_protobuf_lib()
+generate_bindings()
 
-if (NOT EXISTS ${PROTO2JSON})
-	add_dependencies(protobuf-c-demo proto2json)
-        download_convert_lib()
-else()
-	message ("Convert lib already downloaded")
-endif()
+download_json_lib()
+
+add_dependencies(protobuf-c-demo proto2json)
+download_convert_lib()
 
 
 link_with_gen_c()
