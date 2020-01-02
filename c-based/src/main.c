@@ -141,7 +141,7 @@ void ProvideOutletFlowAndInletPressure()
 	char *json;
         protobuf2json_string(
                 &condList.base,
-                JSON_COMPACT,
+                JSON_COMPACT | JSON_REAL_PRECISION(3),
                 &json, NULL, 0
         );
         printf("{\"BoundaryExchangeList\":%s}\n", json);
@@ -276,7 +276,7 @@ void createComplexJson()
 	char *json;
         protobuf2json_string(
                 &condList.base,
-                JSON_COMPACT,
+                JSON_COMPACT | JSON_REAL_PRECISION(2),
                 &json, NULL, 0
         );
 
