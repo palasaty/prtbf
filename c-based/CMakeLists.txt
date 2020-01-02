@@ -85,7 +85,7 @@ function (download_convert_lib)
 		SOURCE_DIR ${PROTO2JSON}
 		INSTALL_DIR ${PROJECT_BINARY_DIR}/install
 		UPDATE_COMMAND cp ${CMAKE_SOURCE_DIR}/patch/protobuf2json.c ${PROTO2JSON}/src 
-		CONFIGURE_COMMAND ${PROTO2JSON}/configure -C --prefix=${CMAKE_INSTALL_PREFIX}  --with-protobuf-c=${PROJECT_BINARY_DIR}/install/
+		CONFIGURE_COMMAND ${PROTO2JSON}/configure -C --prefix=${CMAKE_INSTALL_PREFIX}  --with-protobuf-c=${PROJECT_BINARY_DIR}/install --with-libjansson=${PROJECT_BINARY_DIR}/install
 		BUILD_COMMAND make
 		INSTALL_COMMAND make install
 		BUILD_IN_SOURCE 1
