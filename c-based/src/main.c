@@ -17,7 +17,7 @@ void March()
 		JSON_COMPACT, 
 		&json, NULL, 0
 	);
-	printf("{\"March\": %s}\n", json);
+	printf("%s\n", json);
 
 	free(json);
 }
@@ -32,7 +32,7 @@ void Stop()
                 JSON_COMPACT,
                 &json, NULL, 0
         );
-        printf("{\"Stop\":%s}\n", json);
+        printf("%s\n", json);
 
         free(json);
 }
@@ -64,7 +64,7 @@ void RequestOutletPressure()
                 JSON_COMPACT,
                 &json, NULL, 0
         );
-        printf("{\"BoundaryExchangeList\":%s}\n", json);
+        printf("%s\n", json);
 
         free(json);
 
@@ -98,7 +98,7 @@ void ProvideOutletPressure()
                 JSON_COMPACT,
                 &json, NULL, 0
         );
-        printf("{\"BoundaryExchangeList\":%s}\n", json);
+        printf("%s\n", json);
 
         free(json);
 
@@ -144,7 +144,7 @@ void ProvideOutletFlowAndInletPressure()
                 JSON_COMPACT | JSON_REAL_PRECISION(3),
                 &json, NULL, 0
         );
-        printf("{\"BoundaryExchangeList\":%s}\n", json);
+        printf("%s\n", json);
 
         free(json);
 
@@ -178,7 +178,7 @@ void RequestInletFlow()
                 JSON_COMPACT,
                 &json, NULL, 0
      );
-     printf("{\"BoundaryExchangeList\":%s}\n", json);
+     printf("%s\n", json);
 
      free(json);
 
@@ -212,7 +212,7 @@ void ProvideInletFlow()
                 JSON_COMPACT,
                 &json, NULL, 0
       );
-      printf("{\"BoundaryExchangeList\":%s}\n", json);
+      printf("%s\n", json);
 
       free(json);
 }
@@ -286,7 +286,7 @@ void createComplexJson()
 		printf("Can't open/create file for writing ");
 		return;
 	}
-        fprintf(fp, "{\"BoundaryExchangeList\":%s}\n", json);
+        fprintf(fp,"%s\n", json);
 	fclose(fp);
         free(json);
 }

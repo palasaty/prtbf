@@ -347,21 +347,23 @@ int protobuf2json_object(
 int protobuf2json_string(
   ProtobufCMessage *protobuf_message,
   size_t json_flags,
-  char **json_string,
+  char **json_string2,
   char *error_string,
   size_t error_size
 ) {
-  json_t *json_object = NULL;
+  json_t *json_object2 = NULL;
 
-  int ret = protobuf2json_object(protobuf_message, &json_object, error_string, error_size);
+  int ret = protobuf2json_object(protobuf_message, &json_object2, error_string, error_size);
   if (ret) {
     return ret;
   }
 
   // NOTICE: Should be freed by caller
-  *json_string = json_dumps(json_object, json_flags);
-  if (!*json_string) {
-    json_decref(json_object);
+  json_t *upperObject = json_object();
+  json_object_set_new(upperObject, protobuf_message->descriptor->name, json_object2);
+  *json_string2 = json_dumps(upperObject, json_flags);
+  if (!*json_string2) {
+    json_decref(json_object2);
 
     SET_ERROR_STRING_AND_RETURN(
       PROTOBUF2JSON_ERR_CANNOT_DUMP_STRING,
@@ -369,7 +371,7 @@ int protobuf2json_string(
     );
   }
 
-  json_decref(json_object);
+  json_decref(json_object2);
   return 0;
 }
 
