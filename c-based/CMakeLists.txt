@@ -68,7 +68,7 @@ function (download_json_lib)
                 URL  https://github.com/akheron/jansson/archive/master.zip  
 		CMAKE_ARGS -DJANSSON_BUILD_DOCS=OFF -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} 
 		SOURCE_DIR ${JANSON}
-		#INSTALL_DIR ${GLOBAL_OUTPUT_PATH}
+		INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
 		#BINARY_DIR ${GLOBAL_OUTPUT_PATH}
         )
 
