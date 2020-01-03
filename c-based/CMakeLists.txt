@@ -131,6 +131,6 @@ download_convert_lib()
 generate_bindings()
 
 link_with_gen_c()
-link_with_lib(proto2json "libprotobuf2json-c.so")
-link_with_lib(protobuf-c "libprotobuf-c.so")
+link_with_lib(proto2json "libprotobuf2json-c.a")
+link_with_lib(protobuf-c "libprotobuf-c.a")
 
