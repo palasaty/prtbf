@@ -26,7 +26,7 @@ function(generate_bindings)
 	set (PROTO_PATH "${CMAKE_SOURCE_DIR}/proto")
 	file(GLOB PROTO_FILES ${PROTO_PATH}/*.proto)
 	foreach(file ${PROTO_FILES})
-		set(PROTO_ARGS  protoc-c --proto_path=${PROTO_PATH}  --c_out=${PROTO_PATH} ${file})
+		set(PROTO_ARGS  ${CMAKE_INSTALL_PREFIX}/bin/protoc-c --proto_path=${PROTO_PATH}  --c_out=${PROTO_PATH} ${file})
         	execute_process(COMMAND  ${PROTO_ARGS}
                 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                 	RESULT_VARIABLE ret
