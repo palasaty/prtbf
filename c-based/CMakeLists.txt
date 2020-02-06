@@ -122,6 +122,8 @@ endfunction()
 
 include_directories(${CMAKE_INSTALL_PREFIX}/include)
 add_executable(protobuf-c-demo src/main.c)
+## for windows uncomment this and comment previous
+#add_library(protobuf-c-demo src/main.c)
 #link_directories(${GLOBAL_OUTPUT_PATH})
 
 add_dependencies(protobuf-c-demo proto2json)
